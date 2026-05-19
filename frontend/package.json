@@ -2,7 +2,7 @@
   "name": "enrollment-system-frontend",
   "version": "1.0.0",
   "private": true,
-  "homepage": "https://jbgacho159353.github.io/enrollment-system",
+  "homepage": "/",
   "dependencies": {
     "axios": "^1.4.0",
     "chart.js": "^4.3.0",
