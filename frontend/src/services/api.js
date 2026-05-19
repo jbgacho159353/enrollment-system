@@ -1,4 +1,5 @@
 import axios from 'axios';
+import demoMode from './demoMode';
 
 const api = axios.create({
   baseURL: '/api',
@@ -14,6 +15,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // No response (network error) OR proxy failure 5xx = backend offline → use demo mode
+    if (!error.response || error.response.status >= 500) {
+      return demoMode.handleRequest(error.config);
+    }
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
