@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/enrollment-system/static/css/main.1abd7e29.css",
+    "main.js": "/enrollment-system/static/js/main.8dba1a01.js",
+    "index.html": "/enrollment-system/index.html",
+    "main.1abd7e29.css.map": "/enrollment-system/static/css/main.1abd7e29.css.map",
+    "main.8dba1a01.js.map": "/enrollment-system/static/js/main.8dba1a01.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1abd7e29.css",
+    "static/js/main.8dba1a01.js"
+  ]
+}
