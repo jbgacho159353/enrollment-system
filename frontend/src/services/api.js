@@ -6,6 +6,12 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 });
 
+// On non-localhost (Netlify, GitHub Pages, etc.) there is no backend — always use demo mode
+const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+if (!isLocalhost) {
+  api.defaults.adapter = (config) => demoMode.handleRequest(config);
+}
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) config.headers['Authorization'] = `Bearer ${token}`;
@@ -15,7 +21,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // No response (network error) OR proxy failure 5xx = backend offline → use demo mode
+    // Network error or proxy failure on localhost → fall back to demo mode
     if (!error.response || error.response.status >= 500) {
       return demoMode.handleRequest(error.config);
     }
