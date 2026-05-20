@@ -198,16 +198,16 @@ export default function Users() {
                         </span>
                       </td>
                       <td>
-                        <div className="action-btns">
+                        <div className="td-actions">
                           <button
-                            className="btn-icon btn-warning"
+                            className="action-btn edit"
                             onClick={() => openEdit(u)}
                             title="Edit user"
                           >
                             <IconEdit />
                           </button>
                           <button
-                            className="btn-icon btn-danger"
+                            className="action-btn delete"
                             onClick={() => handleDelete(u.user_id)}
                             title="Delete user"
                             disabled={u.user_id === currentUser?.user_id}
