@@ -196,12 +196,18 @@ export default function Users() {
       </div>
 
       <Modal
-        isOpen={modalOpen}
+        open={modalOpen}
         onClose={() => setModalOpen(false)}
         title="Add New User"
-        onConfirm={handleSave}
-        confirmText={saving ? 'Saving…' : 'Add User'}
-        loading={saving}
+        subtitle="Fill in the details below to create a new account"
+        footer={
+          <>
+            <button className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+              {saving ? 'Saving…' : 'Add User'}
+            </button>
+          </>
+        }
       >
         <div className="form-grid">
           <div className="form-group">
