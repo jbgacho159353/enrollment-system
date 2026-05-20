@@ -116,6 +116,7 @@ const demoMode = {
     if (seg[0] === 'users') {
       if (!seg[1] && method === 'get')    return this.getUsers();
       if (!seg[1] && method === 'post')   return this.createUser(body);
+      if (seg[1]  && method === 'put')    return this.updateUser(+seg[1], body);
       if (seg[1]  && method === 'delete') return this.deleteUser(+seg[1]);
     }
 
@@ -286,6 +287,20 @@ const demoMode = {
     list.push(user);
     setStore('users', list);
     return ok({ user_id: user.user_id, username: user.username, role: user.role });
+  },
+
+  updateUser(id, { username, password, role }) {
+    const list = getStore('users') || [];
+    const idx  = list.findIndex(u => u.user_id === id);
+    if (idx === -1) return fail(404, 'User not found');
+    if (username && list.find(u => u.username === username && u.user_id !== id))
+      return fail(400, 'Username already exists');
+    if (username) list[idx].username = username;
+    if (password) list[idx].password = password;
+    if (role)     list[idx].role     = role;
+    setStore('users', list);
+    const { password: _p, ...rest } = list[idx];
+    return ok(rest);
   },
 
   deleteUser(id) {

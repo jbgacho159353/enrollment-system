@@ -14,6 +14,12 @@ const IconSearch = () => (
     <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
   </svg>
 );
+const IconEdit = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+);
 const IconDelete = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
@@ -34,6 +40,7 @@ export default function Users() {
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch]       = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing]     = useState(null);
   const [form, setForm]           = useState(emptyForm);
   const [saving, setSaving]       = useState(false);
   const [errors, setErrors]       = useState({});
@@ -54,7 +61,6 @@ export default function Users() {
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
-  /* Debounce search */
   useEffect(() => {
     const t = setTimeout(() => setSearch(searchInput), 400);
     return () => clearTimeout(t);
@@ -68,8 +74,12 @@ export default function Users() {
   const validate = () => {
     const e = {};
     if (!form.username.trim()) e.username = 'Username is required';
-    if (!form.password.trim()) e.password = 'Password is required';
-    else if (form.password.length < 6) e.password = 'Password must be at least 6 characters';
+    if (!editing) {
+      if (!form.password.trim()) e.password = 'Password is required';
+      else if (form.password.length < 6) e.password = 'Password must be at least 6 characters';
+    } else if (form.password && form.password.length < 6) {
+      e.password = 'Password must be at least 6 characters';
+    }
     return e;
   };
 
@@ -79,7 +89,16 @@ export default function Users() {
   };
 
   const openAdd = () => {
+    setEditing(null);
     setForm(emptyForm);
+    setErrors({});
+    setShowPwd(false);
+    setModalOpen(true);
+  };
+
+  const openEdit = (u) => {
+    setEditing(u);
+    setForm({ username: u.username, password: '', role: u.role });
     setErrors({});
     setShowPwd(false);
     setModalOpen(true);
@@ -90,12 +109,19 @@ export default function Users() {
     if (Object.keys(e).length) { setErrors(e); return; }
     setSaving(true);
     try {
-      await api.post('/users', form);
-      addToast('User added successfully', 'success');
+      if (editing) {
+        const payload = { username: form.username, role: form.role };
+        if (form.password) payload.password = form.password;
+        await api.put(`/users/${editing.user_id}`, payload);
+        addToast('User updated successfully', 'success');
+      } else {
+        await api.post('/users', form);
+        addToast('User added successfully', 'success');
+      }
       setModalOpen(false);
       fetchUsers();
     } catch (err) {
-      addToast(err.response?.data?.message || 'Failed to add user', 'error');
+      addToast(err.response?.data?.message || 'Failed to save user', 'error');
     } finally {
       setSaving(false);
     }
@@ -174,6 +200,13 @@ export default function Users() {
                       <td>
                         <div className="action-btns">
                           <button
+                            className="btn-icon btn-warning"
+                            onClick={() => openEdit(u)}
+                            title="Edit user"
+                          >
+                            <IconEdit />
+                          </button>
+                          <button
                             className="btn-icon btn-danger"
                             onClick={() => handleDelete(u.user_id)}
                             title="Delete user"
@@ -195,13 +228,13 @@ export default function Users() {
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title="Add New User"
-        subtitle="Fill in the details below to create a new account"
+        title={editing ? 'Edit User' : 'Add New User'}
+        subtitle={editing ? 'Update account details below' : 'Fill in the details below to create a new account'}
         footer={
           <>
             <button className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
             <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving…' : 'Add User'}
+              {saving ? 'Saving…' : editing ? 'Update User' : 'Add User'}
             </button>
           </>
         }
@@ -220,14 +253,14 @@ export default function Users() {
           </div>
 
           <div className="form-group">
-            <label>Password <span className="required">*</span></label>
+            <label>Password {editing ? <span style={{ fontWeight: 400, color: 'var(--text-muted)', fontSize: '0.8rem' }}>(leave blank to keep current)</span> : <span className="required">*</span>}</label>
             <div style={{ position: 'relative' }}>
               <input
                 name="password"
                 type={showPwd ? 'text' : 'password'}
                 value={form.password}
                 onChange={handleChange}
-                placeholder="Enter password (min. 6 characters)"
+                placeholder={editing ? 'Leave blank to keep current password' : 'Enter password (min. 6 characters)'}
                 className={errors.password ? 'input-error' : ''}
                 style={{ paddingRight: '2.5rem' }}
               />
