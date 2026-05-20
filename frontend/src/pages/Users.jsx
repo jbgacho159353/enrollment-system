@@ -28,7 +28,6 @@ function fmtUserId(id) {
 
 export default function Users() {
   const { user: currentUser } = useAuth();
-  const isAdmin = currentUser?.role === 'admin';
 
   const [users, setUsers]         = useState([]);
   const [loading, setLoading]     = useState(true);
@@ -151,12 +150,12 @@ export default function Users() {
                   <th>User ID</th>
                   <th>Username</th>
                   <th>Role</th>
-                  {isAdmin && <th>Actions</th>}
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={isAdmin ? 4 : 3} className="table-empty">No users found</td></tr>
+                  <tr><td colSpan={4} className="table-empty">No users found</td></tr>
                 ) : (
                   filtered.map(u => (
                     <tr key={u.user_id}>
@@ -172,20 +171,18 @@ export default function Users() {
                           {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
                         </span>
                       </td>
-                      {isAdmin && (
-                        <td>
-                          <div className="action-btns">
-                            <button
-                              className="btn-icon btn-danger"
-                              onClick={() => handleDelete(u.user_id)}
-                              title="Delete user"
-                              disabled={u.user_id === currentUser?.user_id}
-                            >
-                              <IconDelete />
-                            </button>
-                          </div>
-                        </td>
-                      )}
+                      <td>
+                        <div className="action-btns">
+                          <button
+                            className="btn-icon btn-danger"
+                            onClick={() => handleDelete(u.user_id)}
+                            title="Delete user"
+                            disabled={u.user_id === currentUser?.user_id}
+                          >
+                            <IconDelete />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
