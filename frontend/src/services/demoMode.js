@@ -113,8 +113,10 @@ const demoMode = {
     }
 
     // USERS
-    if (seg[0] === 'users' && method === 'get') {
-      return ok((getStore('users') || []).map(u => { const { password, ...rest } = u; return rest; }));
+    if (seg[0] === 'users') {
+      if (!seg[1] && method === 'get')    return this.getUsers();
+      if (!seg[1] && method === 'post')   return this.createUser(body);
+      if (seg[1]  && method === 'delete') return this.deleteUser(+seg[1]);
     }
 
     return ok({});
@@ -268,6 +270,31 @@ const demoMode = {
     list.splice(idx, 1);
     setStore('enrollments', list);
     return ok({ message: 'Enrollment deleted successfully' });
+  },
+
+  // ── USERS ─────────────────────────────────────────
+  getUsers() {
+    return ok((getStore('users') || []).map(({ password, ...rest }) => rest));
+  },
+
+  createUser({ username, password, role }) {
+    if (!username || !password) return fail(400, 'Username and password are required');
+    const list = getStore('users') || [];
+    if (list.find(u => u.username === username)) return fail(400, 'Username already exists');
+    const now  = new Date().toISOString();
+    const user = { user_id: getNextId('users'), username, password, role: role || 'registrar', createdAt: now };
+    list.push(user);
+    setStore('users', list);
+    return ok({ user_id: user.user_id, username: user.username, role: user.role });
+  },
+
+  deleteUser(id) {
+    const list = getStore('users') || [];
+    const idx  = list.findIndex(u => u.user_id === id);
+    if (idx === -1) return fail(404, 'User not found');
+    list.splice(idx, 1);
+    setStore('users', list);
+    return ok({ message: 'User deleted successfully' });
   },
 
   // ── DASHBOARD STATS ───────────────────────────────
