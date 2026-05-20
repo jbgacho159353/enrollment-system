@@ -187,7 +187,7 @@ export default function Login() {
 
           <div className="login-footer">
             Don't have an account?{' '}
-            <a href="#contact">Contact Administrator</a>
+            <a href="mailto:joelgacho.ffseo@gmail.com">Contact Administrator</a>
           </div>
         </div>
       </div>
