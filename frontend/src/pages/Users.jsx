@@ -34,6 +34,7 @@ function fmtUserId(id) {
 
 export default function Users() {
   const { user: currentUser } = useAuth();
+  const isRegistrar = currentUser?.role === 'registrar';
 
   const [users, setUsers]         = useState([]);
   const [loading, setLoading]     = useState(true);
@@ -176,12 +177,12 @@ export default function Users() {
                   <th>User ID</th>
                   <th>Username</th>
                   <th>Role</th>
-                  <th>Actions</th>
+                  {isRegistrar && <th>Actions</th>}
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={4} className="table-empty">No users found</td></tr>
+                  <tr><td colSpan={isRegistrar ? 4 : 3} className="table-empty">No users found</td></tr>
                 ) : (
                   filtered.map(u => (
                     <tr key={u.user_id}>
@@ -197,25 +198,27 @@ export default function Users() {
                           {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
                         </span>
                       </td>
-                      <td>
-                        <div className="td-actions">
-                          <button
-                            className="action-btn edit"
-                            onClick={() => openEdit(u)}
-                            title="Edit user"
-                          >
-                            <IconEdit />
-                          </button>
-                          <button
-                            className="action-btn delete"
-                            onClick={() => handleDelete(u.user_id)}
-                            title="Delete user"
-                            disabled={u.user_id === currentUser?.user_id}
-                          >
-                            <IconDelete />
-                          </button>
-                        </div>
-                      </td>
+                      {isRegistrar && (
+                        <td>
+                          <div className="td-actions">
+                            <button
+                              className="action-btn edit"
+                              onClick={() => openEdit(u)}
+                              title="Edit user"
+                            >
+                              <IconEdit />
+                            </button>
+                            <button
+                              className="action-btn delete"
+                              onClick={() => handleDelete(u.user_id)}
+                              title="Delete user"
+                              disabled={u.user_id === currentUser?.user_id}
+                            >
+                              <IconDelete />
+                            </button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))
                 )}
