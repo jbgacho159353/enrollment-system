@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Students from './pages/Students';
 import Courses from './pages/Courses';
 import Enrollments from './pages/Enrollments';
+import Users from './pages/Users';
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="students"    element={<Students />} />
             <Route path="courses"     element={<Courses />} />
             <Route path="enrollments" element={<Enrollments />} />
+            <Route path="users"       element={<Users />} />
           </Route>
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
