@@ -8,17 +8,10 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const saved  = localStorage.getItem('user');
-    if (token && saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        setUser(parsed);
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      } catch {
-        localStorage.clear();
-      }
-    }
+    // Always require login on every page load — clear any saved session
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    delete api.defaults.headers.common['Authorization'];
     setLoading(false);
   }, []);
 

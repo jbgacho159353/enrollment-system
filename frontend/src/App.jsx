@@ -31,7 +31,7 @@ export default function App() {
             <Route path="enrollments" element={<Enrollments />} />
             <Route path="users"       element={<Users />} />
           </Route>
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
