@@ -17,9 +17,10 @@ function getNextId(entity) {
 }
 
 function initIfNeeded() {
-  if (localStorage.getItem('demo_initialized_v2')) return;
+  if (localStorage.getItem('demo_initialized_v3')) return;
   // clear older init flags so enriched data is seeded fresh
   localStorage.removeItem('demo_initialized');
+  localStorage.removeItem('demo_initialized_v2');
   const now = new Date().toISOString();
   const today = now.split('T')[0];
 
@@ -43,6 +44,7 @@ function initIfNeeded() {
       nationality: 'Filipino', blood_type: 'O+',
       year_level: '3rd Year', section: 'A', academic_year: '2024-2025', gpa: 3.82,
       guardian_name: 'Maria Doe', guardian_relation: 'Mother', guardian_contact: '09112345678',
+      avatar: 'https://i.pravatar.cc/150?img=11',
       createdAt: now, updatedAt: now
     },
     {
@@ -53,6 +55,7 @@ function initIfNeeded() {
       nationality: 'Filipino', blood_type: 'A+',
       year_level: '2nd Year', section: 'B', academic_year: '2024-2025', gpa: 3.95,
       guardian_name: 'Robert Smith', guardian_relation: 'Father', guardian_contact: '09223456789',
+      avatar: 'https://i.pravatar.cc/150?img=47',
       createdAt: now, updatedAt: now
     },
     {
@@ -63,6 +66,7 @@ function initIfNeeded() {
       nationality: 'Filipino', blood_type: 'B+',
       year_level: '4th Year', section: 'A', academic_year: '2024-2025', gpa: 3.60,
       guardian_name: 'Linda Johnson', guardian_relation: 'Mother', guardian_contact: '09334567890',
+      avatar: 'https://i.pravatar.cc/150?img=12',
       createdAt: now, updatedAt: now
     },
     {
@@ -73,6 +77,7 @@ function initIfNeeded() {
       nationality: 'Filipino', blood_type: 'AB+',
       year_level: '1st Year', section: 'C', academic_year: '2024-2025', gpa: 3.78,
       guardian_name: 'James Williams', guardian_relation: 'Father', guardian_contact: '09445678901',
+      avatar: 'https://i.pravatar.cc/150?img=49',
       createdAt: now, updatedAt: now
     },
     {
@@ -83,6 +88,7 @@ function initIfNeeded() {
       nationality: 'Filipino', blood_type: 'O-',
       year_level: '2nd Year', section: 'B', academic_year: '2024-2025', gpa: 3.45,
       guardian_name: 'Susan Brown', guardian_relation: 'Mother', guardian_contact: '09556789012',
+      avatar: 'https://i.pravatar.cc/150?img=15',
       createdAt: now, updatedAt: now
     },
     {
@@ -93,6 +99,7 @@ function initIfNeeded() {
       nationality: 'Filipino', blood_type: 'A-',
       year_level: '3rd Year', section: 'A', academic_year: '2024-2025', gpa: 3.90,
       guardian_name: 'Thomas Davis', guardian_relation: 'Father', guardian_contact: '09667890123',
+      avatar: 'https://i.pravatar.cc/150?img=45',
       createdAt: now, updatedAt: now
     },
     {
@@ -103,6 +110,7 @@ function initIfNeeded() {
       nationality: 'Filipino', blood_type: 'B-',
       year_level: '1st Year', section: 'D', academic_year: '2024-2025', gpa: 3.55,
       guardian_name: 'Patricia Wilson', guardian_relation: 'Mother', guardian_contact: '09778901234',
+      avatar: 'https://i.pravatar.cc/150?img=14',
       createdAt: now, updatedAt: now
     }
   ]);
@@ -116,7 +124,7 @@ function initIfNeeded() {
     { enrollment_id: 7, student_id: 7, course_id: 3, enrollment_date: today, status: 'Active',   createdAt: now, updatedAt: now }
   ]);
   localStorage.setItem('demo_next_ids', JSON.stringify({ users: 3, students: 8, courses: 6, enrollments: 8 }));
-  localStorage.setItem('demo_initialized_v2', '1');
+  localStorage.setItem('demo_initialized_v3', '1');
 }
 
 function ok(data) { return Promise.resolve({ data }); }

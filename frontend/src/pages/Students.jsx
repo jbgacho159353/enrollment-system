@@ -100,7 +100,7 @@ const IconShield = () => (
   </svg>
 );
 
-/* ── Avatar color palette ── */
+/* ── Avatar helpers ── */
 const AVATAR_GRADIENTS = [
   ['#4f46e5', '#7c3aed'],
   ['#059669', '#10b981'],
@@ -114,6 +114,32 @@ const AVATAR_GRADIENTS = [
 function avatarGradient(id) {
   const [a, b] = AVATAR_GRADIENTS[(id - 1) % AVATAR_GRADIENTS.length];
   return `linear-gradient(135deg, ${a}, ${b})`;
+}
+
+/* Renders a photo if available, falls back to gradient initials */
+function Avatar({ student, size = 32, fontSize = 12 }) {
+  const [err, setErr] = React.useState(false);
+  const initials = `${student.first_name?.[0] || ''}${student.last_name?.[0] || ''}`.toUpperCase();
+
+  if (student.avatar && !err) {
+    return (
+      <img
+        src={student.avatar}
+        alt={`${student.first_name} ${student.last_name}`}
+        className="student-avatar-img"
+        style={{ width: size, height: size }}
+        onError={() => setErr(true)}
+      />
+    );
+  }
+  return (
+    <div
+      className="student-avatar-fallback"
+      style={{ width: size, height: size, background: avatarGradient(student.student_id), fontSize }}
+    >
+      {initials}
+    </div>
+  );
 }
 
 function fmtDate(str) {
@@ -146,14 +172,13 @@ function InfoCell({ icon, label, value, wide }) {
 
 /* ── Student Detail view ── */
 function StudentDetail({ student }) {
-  const initials = `${student.first_name?.[0] || ''}${student.last_name?.[0] || ''}`.toUpperCase();
   const age = calcAge(student.birth_date);
 
   return (
     <div className="sdetail">
       {/* ── Profile header ── */}
       <div className="sdetail-hero" style={{ background: avatarGradient(student.student_id) }}>
-        <div className="sdetail-avatar">{initials}</div>
+        <Avatar student={student} size={80} fontSize={26} />
         <div className="sdetail-hero-info">
           <h3 className="sdetail-name">{student.first_name} {student.last_name}</h3>
           <div className="sdetail-hero-meta">
@@ -396,12 +421,7 @@ export default function Students() {
                     <td><span className="td-id">{fmtId(s.student_id)}</span></td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div
-                          className="student-row-avatar"
-                          style={{ background: avatarGradient(s.student_id) }}
-                        >
-                          {`${s.first_name?.[0] || ''}${s.last_name?.[0] || ''}`.toUpperCase()}
-                        </div>
+                        <Avatar student={s} size={34} fontSize={12} />
                         <span className="td-name">{s.first_name} {s.last_name}</span>
                       </div>
                     </td>
