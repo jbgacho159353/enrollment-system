@@ -1135,6 +1135,54 @@ tbody tr:last-child td { border-bottom: none; }
 .modal-wide { max-width: 700px; }
 
 /* =========================================================
+   STUDENT EDIT — PHOTO PICKER
+   ========================================================= */
+.savatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 22px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.savatar-wrap {
+  position: relative;
+  width: 90px; height: 90px;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+}
+
+.savatar-wrap .student-avatar-img,
+.savatar-wrap .student-avatar-fallback {
+  border: 3px solid var(--border);
+}
+
+.savatar-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  background: rgba(0, 0, 0, 0.52);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #fff;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.savatar-wrap:hover .savatar-overlay { opacity: 1; }
+.savatar-overlay svg  { width: 20px; height: 20px; }
+.savatar-overlay span { font-size: 10px; font-weight: 600; letter-spacing: .3px; }
+
+.savatar-hint {
+  font-size: 12px;
+  color: var(--text-light);
+}
+
+/* =========================================================
    STUDENT AVATARS (photo + fallback)
    ========================================================= */
 .student-avatar-img {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import api from '../services/api';
 import Modal from '../components/Modal';
 import Toast, { useToast } from '../components/Toast';
@@ -29,6 +29,12 @@ const IconEye = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
     <circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+const IconCamera = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+    <circle cx="12" cy="13" r="4"/>
   </svg>
 );
 const IconChevLeft = () => (
@@ -116,9 +122,12 @@ function avatarGradient(id) {
   return `linear-gradient(135deg, ${a}, ${b})`;
 }
 
-/* Renders a photo if available, falls back to gradient initials */
+/* Photo if available, gradient initials as fallback */
 function Avatar({ student, size = 32, fontSize = 12 }) {
   const [err, setErr] = React.useState(false);
+  // reset error whenever the avatar src changes
+  React.useEffect(() => { setErr(false); }, [student.avatar]);
+
   const initials = `${student.first_name?.[0] || ''}${student.last_name?.[0] || ''}`.toUpperCase();
 
   if (student.avatar && !err) {
@@ -135,29 +144,27 @@ function Avatar({ student, size = 32, fontSize = 12 }) {
   return (
     <div
       className="student-avatar-fallback"
-      style={{ width: size, height: size, background: avatarGradient(student.student_id), fontSize }}
+      style={{ width: size, height: size, background: avatarGradient(student.student_id || 0), fontSize }}
     >
       {initials}
     </div>
   );
 }
 
+/* ── Utility ── */
 function fmtDate(str) {
   if (!str) return null;
   return new Date(str).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
-
 function calcAge(birthDate) {
   if (!birthDate) return null;
-  const diff = Date.now() - new Date(birthDate).getTime();
-  return Math.floor(diff / (365.25 * 24 * 60 * 60 * 1000));
+  return Math.floor((Date.now() - new Date(birthDate).getTime()) / (365.25 * 24 * 60 * 60 * 1000));
 }
-
 function fmtId(id) {
   return `STU-${String(id).padStart(3, '0')}`;
 }
 
-/* ── Info cell for detail view ── */
+/* ── Info cell (detail view) ── */
 function InfoCell({ icon, label, value, wide }) {
   return (
     <div className={`sdetail-cell${wide ? ' wide' : ''}`}>
@@ -170,29 +177,21 @@ function InfoCell({ icon, label, value, wide }) {
   );
 }
 
-/* ── Student Detail view ── */
+/* ── Read-only student profile ── */
 function StudentDetail({ student }) {
   const age = calcAge(student.birth_date);
-
   return (
     <div className="sdetail">
-      {/* ── Profile header ── */}
       <div className="sdetail-hero" style={{ background: avatarGradient(student.student_id) }}>
         <Avatar student={student} size={80} fontSize={26} />
         <div className="sdetail-hero-info">
           <h3 className="sdetail-name">{student.first_name} {student.last_name}</h3>
           <div className="sdetail-hero-meta">
             <span className="sdetail-id-badge">{fmtId(student.student_id)}</span>
-            {student.grade_level && (
-              <span className="sdetail-meta-pill">{student.grade_level}</span>
-            )}
-            {student.year_level && (
-              <span className="sdetail-meta-pill">{student.year_level}</span>
-            )}
+            {student.grade_level && <span className="sdetail-meta-pill">{student.grade_level}</span>}
+            {student.year_level  && <span className="sdetail-meta-pill">{student.year_level}</span>}
           </div>
-          {student.academic_year && (
-            <p className="sdetail-hero-sub">A.Y. {student.academic_year}</p>
-          )}
+          {student.academic_year && <p className="sdetail-hero-sub">A.Y. {student.academic_year}</p>}
         </div>
         {student.gpa && (
           <div className="sdetail-gpa-badge">
@@ -202,47 +201,38 @@ function StudentDetail({ student }) {
         )}
       </div>
 
-      {/* ── Personal Information ── */}
       <div className="sdetail-section">
-        <div className="sdetail-section-title">
-          <IconUser /> Personal Information
-        </div>
+        <div className="sdetail-section-title"><IconUser /> Personal Information</div>
         <div className="sdetail-grid">
-          <InfoCell icon={<IconMail />}     label="Email Address"  value={student.email} />
-          <InfoCell icon={<IconPhone />}    label="Phone Number"   value={student.contact_number} />
-          <InfoCell icon={<IconCalendar />} label="Date of Birth"  value={fmtDate(student.birth_date)} />
-          <InfoCell icon={<IconUser />}     label="Age"            value={age ? `${age} years old` : null} />
-          <InfoCell icon={<IconUser />}     label="Gender"         value={student.gender} />
-          <InfoCell icon={<IconDroplet />}  label="Blood Type"     value={student.blood_type} />
-          <InfoCell icon={<IconGlobe />}    label="Nationality"    value={student.nationality} />
-          <InfoCell icon={<IconMapPin />}   label="Address"        value={student.address} wide />
+          <InfoCell icon={<IconMail />}     label="Email Address" value={student.email} />
+          <InfoCell icon={<IconPhone />}    label="Phone Number"  value={student.contact_number} />
+          <InfoCell icon={<IconCalendar />} label="Date of Birth" value={fmtDate(student.birth_date)} />
+          <InfoCell icon={<IconUser />}     label="Age"           value={age ? `${age} years old` : null} />
+          <InfoCell icon={<IconUser />}     label="Gender"        value={student.gender} />
+          <InfoCell icon={<IconDroplet />}  label="Blood Type"    value={student.blood_type} />
+          <InfoCell icon={<IconGlobe />}    label="Nationality"   value={student.nationality} />
+          <InfoCell icon={<IconMapPin />}   label="Address"       value={student.address} wide />
         </div>
       </div>
 
-      {/* ── Academic Information ── */}
       <div className="sdetail-section">
-        <div className="sdetail-section-title">
-          <IconBook /> Academic Information
-        </div>
+        <div className="sdetail-section-title"><IconBook /> Academic Information</div>
         <div className="sdetail-grid">
-          <InfoCell icon={<IconBook />}    label="Grade Level"    value={student.grade_level} />
-          <InfoCell icon={<IconGrid />}    label="Year Level"     value={student.year_level} />
-          <InfoCell icon={<IconShield />}  label="Section"        value={student.section ? `Section ${student.section}` : null} />
-          <InfoCell icon={<IconCalendar />}label="Academic Year"  value={student.academic_year} />
-          <InfoCell icon={<IconAward />}   label="GPA"            value={student.gpa ? `${Number(student.gpa).toFixed(2)} / 4.00` : null} />
+          <InfoCell icon={<IconBook />}     label="Grade Level"   value={student.grade_level} />
+          <InfoCell icon={<IconGrid />}     label="Year Level"    value={student.year_level} />
+          <InfoCell icon={<IconShield />}   label="Section"       value={student.section ? `Section ${student.section}` : null} />
+          <InfoCell icon={<IconCalendar />} label="Academic Year" value={student.academic_year} />
+          <InfoCell icon={<IconAward />}    label="GPA"           value={student.gpa ? `${Number(student.gpa).toFixed(2)} / 4.00` : null} />
         </div>
       </div>
 
-      {/* ── Emergency Contact ── */}
       {(student.guardian_name || student.guardian_contact) && (
         <div className="sdetail-section">
-          <div className="sdetail-section-title">
-            <IconShield /> Emergency Contact
-          </div>
+          <div className="sdetail-section-title"><IconShield /> Emergency Contact</div>
           <div className="sdetail-grid">
-            <InfoCell icon={<IconUser />}  label="Full Name"      value={student.guardian_name} />
-            <InfoCell icon={<IconShield />}label="Relationship"   value={student.guardian_relation} />
-            <InfoCell icon={<IconPhone />} label="Contact Number" value={student.guardian_contact} />
+            <InfoCell icon={<IconUser />}   label="Full Name"      value={student.guardian_name} />
+            <InfoCell icon={<IconShield />} label="Relationship"   value={student.guardian_relation} />
+            <InfoCell icon={<IconPhone />}  label="Contact Number" value={student.guardian_contact} />
           </div>
         </div>
       )}
@@ -250,27 +240,33 @@ function StudentDetail({ student }) {
   );
 }
 
-/* ── Empty form ── */
+/* ── Form default ── */
 const emptyForm = {
+  avatar: '',
   first_name: '', last_name: '', email: '',
-  contact_number: '', birth_date: '', gender: '', grade_level: ''
+  contact_number: '', birth_date: '', gender: '',
+  blood_type: '', nationality: '', address: '',
+  grade_level: '', year_level: '', section: '',
+  academic_year: '', gpa: '',
+  guardian_name: '', guardian_relation: '', guardian_contact: '',
 };
 
 export default function Students() {
-  const [students, setStudents]       = useState([]);
-  const [total, setTotal]             = useState(0);
-  const [page, setPage]               = useState(1);
-  const [totalPages, setTotalPages]   = useState(1);
-  const [search, setSearch]           = useState('');
-  const [loading, setLoading]         = useState(true);
-  const [modalOpen, setModalOpen]     = useState(false);
-  const [detailOpen, setDetailOpen]   = useState(false);
+  const [students, setStudents]             = useState([]);
+  const [total, setTotal]                   = useState(0);
+  const [page, setPage]                     = useState(1);
+  const [totalPages, setTotalPages]         = useState(1);
+  const [search, setSearch]                 = useState('');
+  const [loading, setLoading]               = useState(true);
+  const [modalOpen, setModalOpen]           = useState(false);
+  const [detailOpen, setDetailOpen]         = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [editing, setEditing]         = useState(null);
-  const [form, setForm]               = useState(emptyForm);
-  const [saving, setSaving]           = useState(false);
-  const [errors, setErrors]           = useState({});
-  const { toasts, addToast, removeToast } = useToast();
+  const [editing, setEditing]               = useState(null);
+  const [form, setForm]                     = useState(emptyForm);
+  const [saving, setSaving]                 = useState(false);
+  const [errors, setErrors]                 = useState({});
+  const fileInputRef                        = useRef(null);
+  const { toasts, addToast, removeToast }   = useToast();
 
   const limit = 7;
 
@@ -296,17 +292,70 @@ export default function Students() {
     return () => clearTimeout(t);
   }, [searchInput]);
 
+  const f = (key) => (e) => {
+    setForm(prev => ({ ...prev, [key]: e.target.value }));
+    setErrors(prev => ({ ...prev, [key]: '' }));
+  };
+
   const openView = (s) => { setSelectedStudent(s); setDetailOpen(true); };
-  const openAdd  = () => { setEditing(null); setForm(emptyForm); setErrors({}); setModalOpen(true); };
+
+  const openAdd = () => {
+    setEditing(null);
+    setForm(emptyForm);
+    setErrors({});
+    setModalOpen(true);
+  };
+
   const openEdit = (s) => {
     setEditing(s);
     setForm({
-      first_name: s.first_name, last_name: s.last_name, email: s.email,
-      contact_number: s.contact_number || '', birth_date: s.birth_date || '',
-      gender: s.gender || '', grade_level: s.grade_level || ''
+      avatar:            s.avatar            || '',
+      first_name:        s.first_name        || '',
+      last_name:         s.last_name         || '',
+      email:             s.email             || '',
+      contact_number:    s.contact_number    || '',
+      birth_date:        s.birth_date        || '',
+      gender:            s.gender            || '',
+      blood_type:        s.blood_type        || '',
+      nationality:       s.nationality       || '',
+      address:           s.address           || '',
+      grade_level:       s.grade_level       || '',
+      year_level:        s.year_level        || '',
+      section:           s.section           || '',
+      academic_year:     s.academic_year     || '',
+      gpa:               s.gpa != null ? String(s.gpa) : '',
+      guardian_name:     s.guardian_name     || '',
+      guardian_relation: s.guardian_relation || '',
+      guardian_contact:  s.guardian_contact  || '',
     });
     setErrors({});
     setModalOpen(true);
+  };
+
+  /* Resize-and-crop selected file to 220×220 JPEG, store as data URL */
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const SIZE = 220;
+        canvas.width = SIZE;
+        canvas.height = SIZE;
+        const ctx = canvas.getContext('2d');
+        const side = Math.min(img.width, img.height);
+        const sx = (img.width - side) / 2;
+        const sy = (img.height - side) / 2;
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, SIZE, SIZE);
+        setForm(prev => ({ ...prev, avatar: canvas.toDataURL('image/jpeg', 0.75) }));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    // reset so the same file can be re-selected if needed
+    e.target.value = '';
   };
 
   const validate = () => {
@@ -315,6 +364,8 @@ export default function Students() {
     if (!form.last_name.trim())  e.last_name  = 'Required';
     if (!form.email.trim())      e.email      = 'Required';
     else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Invalid email';
+    if (form.gpa && (isNaN(form.gpa) || +form.gpa < 0 || +form.gpa > 4))
+      e.gpa = 'Must be 0.00 – 4.00';
     return e;
   };
 
@@ -322,12 +373,13 @@ export default function Students() {
     const e = validate();
     if (Object.keys(e).length) { setErrors(e); return; }
     setSaving(true);
+    const payload = { ...form, gpa: form.gpa !== '' ? parseFloat(form.gpa) : null };
     try {
       if (editing) {
-        await api.put(`/students/${editing.student_id}`, form);
+        await api.put(`/students/${editing.student_id}`, payload);
         addToast('Student updated successfully', 'success');
       } else {
-        await api.post('/students', form);
+        await api.post('/students', payload);
         addToast('Student added successfully', 'success');
       }
       setModalOpen(false);
@@ -353,6 +405,14 @@ export default function Students() {
   const startItem = (page - 1) * limit + 1;
   const endItem   = Math.min(page * limit, total);
 
+  /* Proxy student object for the edit-modal avatar preview */
+  const previewStudent = {
+    ...form,
+    student_id: editing?.student_id || 0,
+    first_name: form.first_name || '?',
+    last_name:  form.last_name  || '',
+  };
+
   return (
     <div>
       <Toast toasts={toasts} onRemove={removeToast} />
@@ -364,8 +424,7 @@ export default function Students() {
           <div className="breadcrumb">Home / <span>Students</span></div>
         </div>
         <button className="btn btn-primary" onClick={openAdd}>
-          <IconPlus />
-          Add Student
+          <IconPlus /> Add Student
         </button>
       </div>
 
@@ -396,8 +455,7 @@ export default function Students() {
           ) : students.length === 0 ? (
             <div className="empty-state">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                <circle cx="9" cy="7" r="4"/>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
               </svg>
               <h3>No students found</h3>
               <p>{search ? 'Try a different search term' : 'Click "Add Student" to get started'}</p>
@@ -406,13 +464,8 @@ export default function Students() {
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Gender</th>
-                  <th>Grade Level</th>
-                  <th>Contact</th>
-                  <th>Actions</th>
+                  <th>ID</th><th>Name</th><th>Email</th>
+                  <th>Gender</th><th>Grade Level</th><th>Contact</th><th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -431,15 +484,9 @@ export default function Students() {
                     <td>{s.contact_number || '—'}</td>
                     <td>
                       <div className="td-actions">
-                        <button className="action-btn view" onClick={() => openView(s)} title="View Details">
-                          <IconEye />
-                        </button>
-                        <button className="action-btn edit" onClick={() => openEdit(s)} title="Edit">
-                          <IconEdit />
-                        </button>
-                        <button className="action-btn delete" onClick={() => handleDelete(s)} title="Delete">
-                          <IconDelete />
-                        </button>
+                        <button className="action-btn view"   onClick={() => openView(s)}   title="View Details"><IconEye /></button>
+                        <button className="action-btn edit"   onClick={() => openEdit(s)}   title="Edit"><IconEdit /></button>
+                        <button className="action-btn delete" onClick={() => handleDelete(s)} title="Delete"><IconDelete /></button>
                       </div>
                     </td>
                   </tr>
@@ -451,25 +498,17 @@ export default function Students() {
 
         {!loading && students.length > 0 && (
           <div className="pagination">
-            <div className="pagination-info">
-              Showing {startItem}–{endItem} of {total} results
-            </div>
+            <div className="pagination-info">Showing {startItem}–{endItem} of {total} results</div>
             <div className="pagination-controls">
               <button className="pagination-btn" onClick={() => setPage(p => p - 1)} disabled={page === 1}>
                 <IconChevLeft />
               </button>
               {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  className={`pagination-btn ${p === page ? 'active' : ''}`}
-                  onClick={() => setPage(p)}
-                >
+                <button key={p} className={`pagination-btn ${p === page ? 'active' : ''}`} onClick={() => setPage(p)}>
                   {p}
                 </button>
               ))}
-              {totalPages > 5 && (
-                <span className="pagination-btn" style={{ border: 'none', cursor: 'default' }}>…</span>
-              )}
+              {totalPages > 5 && <span className="pagination-btn" style={{ border: 'none', cursor: 'default' }}>…</span>}
               <button className="pagination-btn" onClick={() => setPage(p => p + 1)} disabled={page === totalPages}>
                 <IconChevRight />
               </button>
@@ -502,7 +541,8 @@ export default function Students() {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         title={editing ? 'Edit Student' : 'Add New Student'}
-        subtitle={editing ? 'Update student information' : 'Fill in student details below'}
+        subtitle={editing ? 'Update all student information' : 'Fill in student details below'}
+        wide
         footer={
           <>
             <button className="btn btn-secondary" onClick={() => setModalOpen(false)}>Cancel</button>
@@ -512,78 +552,130 @@ export default function Students() {
           </>
         }
       >
+        {/* ── Photo picker ── */}
+        <div className="savatar-section">
+          <div className="savatar-wrap" onClick={() => fileInputRef.current?.click()} title="Click to change photo">
+            <Avatar student={previewStudent} size={90} fontSize={28} />
+            <div className="savatar-overlay">
+              <IconCamera />
+              <span>Change Photo</span>
+            </div>
+          </div>
+          <p className="savatar-hint">Click the photo to upload a new image</p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={handleAvatarChange}
+          />
+        </div>
+
+        {/* ── Personal Information ── */}
         <div className="form-section-title">Personal Information</div>
         <div className="form-grid">
           <div className="form-group">
             <label className="form-label">First Name *</label>
-            <input
-              className={`form-input ${errors.first_name ? 'error' : ''}`}
-              placeholder="Enter first name"
-              value={form.first_name}
-              onChange={(e) => { setForm({ ...form, first_name: e.target.value }); setErrors({ ...errors, first_name: '' }); }}
-            />
+            <input className={`form-input ${errors.first_name ? 'error' : ''}`} placeholder="First name" value={form.first_name} onChange={f('first_name')} />
             {errors.first_name && <span className="form-error">{errors.first_name}</span>}
           </div>
           <div className="form-group">
             <label className="form-label">Last Name *</label>
-            <input
-              className={`form-input ${errors.last_name ? 'error' : ''}`}
-              placeholder="Enter last name"
-              value={form.last_name}
-              onChange={(e) => { setForm({ ...form, last_name: e.target.value }); setErrors({ ...errors, last_name: '' }); }}
-            />
+            <input className={`form-input ${errors.last_name ? 'error' : ''}`} placeholder="Last name" value={form.last_name} onChange={f('last_name')} />
             {errors.last_name && <span className="form-error">{errors.last_name}</span>}
           </div>
           <div className="form-group">
             <label className="form-label">Email Address *</label>
-            <input
-              type="email"
-              className={`form-input ${errors.email ? 'error' : ''}`}
-              placeholder="Enter email address"
-              value={form.email}
-              onChange={(e) => { setForm({ ...form, email: e.target.value }); setErrors({ ...errors, email: '' }); }}
-            />
+            <input type="email" className={`form-input ${errors.email ? 'error' : ''}`} placeholder="Email address" value={form.email} onChange={f('email')} />
             {errors.email && <span className="form-error">{errors.email}</span>}
           </div>
           <div className="form-group">
             <label className="form-label">Phone Number</label>
-            <input
-              className="form-input"
-              placeholder="Enter phone number"
-              value={form.contact_number}
-              onChange={(e) => setForm({ ...form, contact_number: e.target.value })}
-            />
+            <input className="form-input" placeholder="e.g. 09123456789" value={form.contact_number} onChange={f('contact_number')} />
           </div>
           <div className="form-group">
             <label className="form-label">Date of Birth</label>
-            <input
-              type="date"
-              className="form-input"
-              value={form.birth_date}
-              onChange={(e) => setForm({ ...form, birth_date: e.target.value })}
-            />
+            <input type="date" className="form-input" value={form.birth_date} onChange={f('birth_date')} />
           </div>
           <div className="form-group">
             <label className="form-label">Gender</label>
-            <select className="form-select" value={form.gender} onChange={(e) => setForm({ ...form, gender: e.target.value })}>
+            <select className="form-select" value={form.gender} onChange={f('gender')}>
               <option value="">Select gender</option>
-              <option>Male</option>
-              <option>Female</option>
-              <option>Other</option>
+              <option>Male</option><option>Female</option><option>Other</option>
             </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Blood Type</label>
+            <select className="form-select" value={form.blood_type} onChange={f('blood_type')}>
+              <option value="">Select blood type</option>
+              {['A+','A-','B+','B-','AB+','AB-','O+','O-'].map(bt => <option key={bt}>{bt}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Nationality</label>
+            <input className="form-input" placeholder="e.g. Filipino" value={form.nationality} onChange={f('nationality')} />
+          </div>
+          <div className="form-group form-col-full">
+            <label className="form-label">Home Address</label>
+            <input className="form-input" placeholder="Street, City, Province" value={form.address} onChange={f('address')} />
           </div>
         </div>
 
+        {/* ── Academic Information ── */}
         <div className="form-section-title">Academic Information</div>
-        <div className="form-grid single">
+        <div className="form-grid">
           <div className="form-group">
             <label className="form-label">Grade Level</label>
-            <select className="form-select" value={form.grade_level} onChange={(e) => setForm({ ...form, grade_level: e.target.value })}>
+            <select className="form-select" value={form.grade_level} onChange={f('grade_level')}>
               <option value="">Select grade level</option>
-              {['Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12','College'].map((g) => (
-                <option key={g}>{g}</option>
-              ))}
+              {['Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12','College'].map(g => <option key={g}>{g}</option>)}
             </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Year Level</label>
+            <select className="form-select" value={form.year_level} onChange={f('year_level')}>
+              <option value="">Select year level</option>
+              {['1st Year','2nd Year','3rd Year','4th Year','5th Year'].map(y => <option key={y}>{y}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Section</label>
+            <input className="form-input" placeholder="e.g. A, B, C" value={form.section} onChange={f('section')} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Academic Year</label>
+            <input className="form-input" placeholder="e.g. 2024-2025" value={form.academic_year} onChange={f('academic_year')} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">GPA</label>
+            <input
+              type="number" step="0.01" min="0" max="4"
+              className={`form-input ${errors.gpa ? 'error' : ''}`}
+              placeholder="0.00 – 4.00"
+              value={form.gpa}
+              onChange={f('gpa')}
+            />
+            {errors.gpa && <span className="form-error">{errors.gpa}</span>}
+          </div>
+        </div>
+
+        {/* ── Emergency Contact ── */}
+        <div className="form-section-title">Emergency Contact</div>
+        <div className="form-grid">
+          <div className="form-group">
+            <label className="form-label">Guardian Name</label>
+            <input className="form-input" placeholder="Full name" value={form.guardian_name} onChange={f('guardian_name')} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Relationship</label>
+            <select className="form-select" value={form.guardian_relation} onChange={f('guardian_relation')}>
+              <option value="">Select relationship</option>
+              {['Mother','Father','Guardian','Sibling','Spouse','Other'].map(r => <option key={r}>{r}</option>)}
+            </select>
+          </div>
+          <div className="form-group form-col-full">
+            <label className="form-label">Contact Number</label>
+            <input className="form-input" placeholder="e.g. 09112345678" value={form.guardian_contact} onChange={f('guardian_contact')} />
           </div>
         </div>
       </Modal>
