@@ -17,7 +17,9 @@ function getNextId(entity) {
 }
 
 function initIfNeeded() {
-  if (localStorage.getItem('demo_initialized')) return;
+  if (localStorage.getItem('demo_initialized_v2')) return;
+  // clear older init flags so enriched data is seeded fresh
+  localStorage.removeItem('demo_initialized');
   const now = new Date().toISOString();
   const today = now.split('T')[0];
 
@@ -33,13 +35,76 @@ function initIfNeeded() {
     { course_id: 5, course_name: 'Software Engineering',    grade_level: 'College', description: 'Software Engineering Fundamentals',    duration: '4 Years', status: 'Inactive', createdAt: now, updatedAt: now }
   ]);
   setStore('students', [
-    { student_id: 1, first_name: 'John',    last_name: 'Doe',      email: 'john.doe@email.com',   gender: 'Male',   grade_level: 'College', contact_number: '09123456789', birth_date: '2000-05-15', createdAt: now, updatedAt: now },
-    { student_id: 2, first_name: 'Jane',    last_name: 'Smith',    email: 'jane.smith@email.com', gender: 'Female', grade_level: 'College', contact_number: '09234567890', birth_date: '2001-08-22', createdAt: now, updatedAt: now },
-    { student_id: 3, first_name: 'Michael', last_name: 'Johnson',  email: 'michael.j@email.com',  gender: 'Male',   grade_level: 'College', contact_number: '09345678901', birth_date: '2000-03-10', createdAt: now, updatedAt: now },
-    { student_id: 4, first_name: 'Sarah',   last_name: 'Williams', email: 'sarah.w@email.com',    gender: 'Female', grade_level: 'College', contact_number: '09456789012', birth_date: '2001-11-05', createdAt: now, updatedAt: now },
-    { student_id: 5, first_name: 'David',   last_name: 'Brown',    email: 'david.b@email.com',    gender: 'Male',   grade_level: 'College', contact_number: '09567890123', birth_date: '1999-07-18', createdAt: now, updatedAt: now },
-    { student_id: 6, first_name: 'Emily',   last_name: 'Davis',    email: 'emily.d@email.com',    gender: 'Female', grade_level: 'College', contact_number: '09678901234', birth_date: '2001-04-30', createdAt: now, updatedAt: now },
-    { student_id: 7, first_name: 'James',   last_name: 'Wilson',   email: 'james.w@email.com',    gender: 'Male',   grade_level: 'College', contact_number: '09789012345', birth_date: '2000-09-12', createdAt: now, updatedAt: now }
+    {
+      student_id: 1, first_name: 'John', last_name: 'Doe',
+      email: 'john.doe@email.com', gender: 'Male', grade_level: 'College',
+      contact_number: '09123456789', birth_date: '2000-05-15',
+      address: '123 Rizal Street, Makati City, Metro Manila',
+      nationality: 'Filipino', blood_type: 'O+',
+      year_level: '3rd Year', section: 'A', academic_year: '2024-2025', gpa: 3.82,
+      guardian_name: 'Maria Doe', guardian_relation: 'Mother', guardian_contact: '09112345678',
+      createdAt: now, updatedAt: now
+    },
+    {
+      student_id: 2, first_name: 'Jane', last_name: 'Smith',
+      email: 'jane.smith@email.com', gender: 'Female', grade_level: 'College',
+      contact_number: '09234567890', birth_date: '2001-08-22',
+      address: '456 Bonifacio Avenue, Quezon City, Metro Manila',
+      nationality: 'Filipino', blood_type: 'A+',
+      year_level: '2nd Year', section: 'B', academic_year: '2024-2025', gpa: 3.95,
+      guardian_name: 'Robert Smith', guardian_relation: 'Father', guardian_contact: '09223456789',
+      createdAt: now, updatedAt: now
+    },
+    {
+      student_id: 3, first_name: 'Michael', last_name: 'Johnson',
+      email: 'michael.j@email.com', gender: 'Male', grade_level: 'College',
+      contact_number: '09345678901', birth_date: '2000-03-10',
+      address: '789 Mabini Road, Pasig City, Metro Manila',
+      nationality: 'Filipino', blood_type: 'B+',
+      year_level: '4th Year', section: 'A', academic_year: '2024-2025', gpa: 3.60,
+      guardian_name: 'Linda Johnson', guardian_relation: 'Mother', guardian_contact: '09334567890',
+      createdAt: now, updatedAt: now
+    },
+    {
+      student_id: 4, first_name: 'Sarah', last_name: 'Williams',
+      email: 'sarah.w@email.com', gender: 'Female', grade_level: 'College',
+      contact_number: '09456789012', birth_date: '2001-11-05',
+      address: '321 Del Pilar Street, Taguig City, Metro Manila',
+      nationality: 'Filipino', blood_type: 'AB+',
+      year_level: '1st Year', section: 'C', academic_year: '2024-2025', gpa: 3.78,
+      guardian_name: 'James Williams', guardian_relation: 'Father', guardian_contact: '09445678901',
+      createdAt: now, updatedAt: now
+    },
+    {
+      student_id: 5, first_name: 'David', last_name: 'Brown',
+      email: 'david.b@email.com', gender: 'Male', grade_level: 'College',
+      contact_number: '09567890123', birth_date: '1999-07-18',
+      address: '654 Quezon Boulevard, Mandaluyong City, Metro Manila',
+      nationality: 'Filipino', blood_type: 'O-',
+      year_level: '2nd Year', section: 'B', academic_year: '2024-2025', gpa: 3.45,
+      guardian_name: 'Susan Brown', guardian_relation: 'Mother', guardian_contact: '09556789012',
+      createdAt: now, updatedAt: now
+    },
+    {
+      student_id: 6, first_name: 'Emily', last_name: 'Davis',
+      email: 'emily.d@email.com', gender: 'Female', grade_level: 'College',
+      contact_number: '09678901234', birth_date: '2001-04-30',
+      address: '987 Avenida Street, San Juan, Metro Manila',
+      nationality: 'Filipino', blood_type: 'A-',
+      year_level: '3rd Year', section: 'A', academic_year: '2024-2025', gpa: 3.90,
+      guardian_name: 'Thomas Davis', guardian_relation: 'Father', guardian_contact: '09667890123',
+      createdAt: now, updatedAt: now
+    },
+    {
+      student_id: 7, first_name: 'James', last_name: 'Wilson',
+      email: 'james.w@email.com', gender: 'Male', grade_level: 'College',
+      contact_number: '09789012345', birth_date: '2000-09-12',
+      address: '246 National Road, Marikina City, Metro Manila',
+      nationality: 'Filipino', blood_type: 'B-',
+      year_level: '1st Year', section: 'D', academic_year: '2024-2025', gpa: 3.55,
+      guardian_name: 'Patricia Wilson', guardian_relation: 'Mother', guardian_contact: '09778901234',
+      createdAt: now, updatedAt: now
+    }
   ]);
   setStore('enrollments', [
     { enrollment_id: 1, student_id: 1, course_id: 1, enrollment_date: today, status: 'Active',   createdAt: now, updatedAt: now },
@@ -51,7 +116,7 @@ function initIfNeeded() {
     { enrollment_id: 7, student_id: 7, course_id: 3, enrollment_date: today, status: 'Active',   createdAt: now, updatedAt: now }
   ]);
   localStorage.setItem('demo_next_ids', JSON.stringify({ users: 3, students: 8, courses: 6, enrollments: 8 }));
-  localStorage.setItem('demo_initialized', '1');
+  localStorage.setItem('demo_initialized_v2', '1');
 }
 
 function ok(data) { return Promise.resolve({ data }); }

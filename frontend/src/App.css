@@ -1130,6 +1130,199 @@ tbody tr:last-child td { border-bottom: none; }
 .login-footer a:hover { text-decoration: underline; }
 
 /* =========================================================
+   WIDE MODAL
+   ========================================================= */
+.modal-wide { max-width: 700px; }
+
+/* =========================================================
+   STUDENT TABLE ROW AVATAR
+   ========================================================= */
+.student-row-avatar {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-full);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   STUDENT DETAIL PROFILE
+   ========================================================= */
+.sdetail { display: flex; flex-direction: column; gap: 0; }
+
+/* ── Hero banner ── */
+.sdetail-hero {
+  border-radius: var(--radius-lg);
+  padding: 24px 24px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.sdetail-hero::before {
+  content: '';
+  position: absolute;
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,.08);
+  border-radius: 50%;
+  top: -80px; right: -60px;
+  pointer-events: none;
+}
+
+.sdetail-avatar {
+  width: 64px; height: 64px;
+  border-radius: var(--radius-full);
+  background: rgba(255,255,255,.22);
+  border: 2.5px solid rgba(255,255,255,.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+  letter-spacing: -0.5px;
+}
+
+.sdetail-hero-info { flex: 1; }
+.sdetail-name {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.sdetail-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.sdetail-id-badge {
+  background: rgba(255,255,255,.2);
+  border: 1px solid rgba(255,255,255,.3);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-family: monospace;
+}
+
+.sdetail-meta-pill {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.9);
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.sdetail-hero-sub {
+  color: rgba(255,255,255,.65);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.sdetail-gpa-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,.15);
+  border: 1.5px solid rgba(255,255,255,.25);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  flex-shrink: 0;
+  backdrop-filter: blur(4px);
+  min-width: 60px;
+  text-align: center;
+}
+.sdetail-gpa-num {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+.sdetail-gpa-lbl {
+  color: rgba(255,255,255,.65);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+/* ── Section ── */
+.sdetail-section {
+  margin-bottom: 20px;
+}
+
+.sdetail-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-mid);
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid var(--border);
+}
+.sdetail-section-title svg { width: 14px; height: 14px; color: var(--primary); }
+
+/* ── Info grid ── */
+.sdetail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.sdetail-cell {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+.sdetail-cell.wide { grid-column: 1 / -1; }
+
+.sdetail-cell-icon {
+  width: 30px; height: 30px;
+  background: var(--primary-bg);
+  color: var(--primary);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sdetail-cell-icon svg { width: 14px; height: 14px; }
+
+.sdetail-cell-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.sdetail-cell-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+.sdetail-cell-value {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-dark);
+  word-break: break-word;
+}
+
+/* =========================================================
    TOAST NOTIFICATIONS
    ========================================================= */
 .toast-container {

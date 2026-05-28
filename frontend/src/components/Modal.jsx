@@ -6,7 +6,7 @@ const IconClose = () => (
   </svg>
 );
 
-export default function Modal({ open, onClose, title, subtitle, children, footer }) {
+export default function Modal({ open, onClose, title, subtitle, children, footer, wide }) {
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden';
@@ -20,7 +20,7 @@ export default function Modal({ open, onClose, title, subtitle, children, footer
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal">
+      <div className={`modal${wide ? ' modal-wide' : ''}`}>
         <div className="modal-header">
           <div>
             <div className="modal-title">{title}</div>
